@@ -1,0 +1,1637 @@
+#: import NoTransition kivy.uix.screenmanager.NoTransition
+#: import Factory kivy.factory.Factory
+#:import ScrollEffect  kivy.effects.scroll.ScrollEffect
+#:import FocusBehaviour kivy.uix.behaviors.focus
+#:import platform kivy.utils.platform
+#:import fun functions
+WindowManager:
+    transition: NoTransition()
+    MainScreen:
+    ReviewScreen:
+    LessonLearnScreen:
+    LessonQuizScreen:
+    StatisticsScreen:
+    DevMode:
+    ExtrasScreen:
+    MemoryScreen:
+    QuizStatAdvancedScreen:
+    SoundcheckScreen:
+    SaveScreen:
+    Tutorial:
+    About:
+    TopicChoice:
+
+<SearchPopup@Popup>
+    size_hint: 0.8,.9
+    pos_hint: {"x": 0.1, "top":.95}
+    title: "Search"
+    search: search
+    scroller: scroller
+    GridLayout:
+        cols:1
+        Button:
+            text:"Search"
+            on_press: app.answer=fun.search_for(root.search.text),scroller.clear_widgets()
+            on_release:app.searcher(), scroller.add_widget(app.searchlayout)
+            size_hint:1,0.1
+            background_normal:''
+            color: 1,1,1,1
+            background_color: 0,170/255,160/255,1
+
+        TextInput:
+            id: search
+            multiline: False
+            size_hint:1,0.1
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            effect_cls: ScrollEffect
+            size_hint: 1, 0.8
+            id: scroller
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+
+<FileChooserListView>:
+    # source:
+    canvas.before:
+        Color:
+            rgb: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    layout: layout
+    FileChooserListLayout:
+        id: layout
+        controller: root
+
+[FileListEntry@FloatLayout+TreeViewNode]:
+    # source:
+    locked: False
+    entries: []
+    path: ctx.path
+    is_selected: self.path in ctx.controller().selection
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: '48dp' if dp(1) > 1 else '24dp'
+    is_leaf: not ctx.isdir or ctx.name.endswith('..' + ctx.sep) or self.locked
+    on_touch_down: self.collide_point(*args[1].pos) and ctx.controller().entry_touched(self, args[1])
+    on_touch_up: self.collide_point(*args[1].pos) and ctx.controller().entry_released(self, args[1])
+    BoxLayout:
+        pos: root.pos
+        size_hint_x: None
+        width: root.width - dp(10)
+        Label:
+            color: 0, 0, 0, 1
+            id: filename
+            text_size: self.width, None
+            halign: 'left'
+            shorten: True
+            text: ctx.name
+        Label:
+            color: 0, 0, 0, 1
+            text_size: self.width, None
+            size_hint_x: None
+            halign: 'right'
+            text: '{}'.format(ctx.get_nice_size())
+
+<BlackLine@Label>
+    text:""
+    height: 3*0.001*app.windowsize[1]
+    size_hint_y:None
+    canvas.before:
+        Color:
+            rgba: (0,0,0,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+
+<IconImage@Image>
+    x: self.parent.center_x - self.size[0]*0.5
+    y:  self.parent.center_y - self.size[1]*0.5
+    size: app.iconsize
+    allow_stretch: True
+
+<IconImageMain@Image>
+    x: self.parent.center_x - self.size[0]*0.5
+    y:  self.parent.center_y - self.size[1]*0.5
+    size:("48dp" ,"48dp")
+    allow_stretch: True
+
+<GuidePopup@Popup>
+    size_hint: 0.8,.9
+    pos_hint: {"x": 0.1, "top":.95}
+    title: "Guide"
+    GridLayout:
+        cols:1
+        spacing: 50
+        padding: 20
+        canvas.before:
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                size:  self.size
+                pos: self.pos
+        Label:
+            text: fun.guide()
+            color:0,0,0,1
+            size_hint: 0.7,.7
+            pos_hint: {"x": 0.15, "top":.9}
+            text_size: self.size
+            halign: 'left'
+            valign: 'top'
+
+<RoundedButton_animated@Button>
+    background_color:1,1,1,0
+    background_normal: ""
+    blink_size: 0
+    animationcolor: (1,1,1,1)
+    canvas:
+        Color:
+            rgba: app.roundedbuttoncolor
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [(self.size[1]+100)*0.1]
+    canvas.before:
+        Color:
+            rgba: self.animationcolor
+        RoundedRectangle:
+            size: self.blink_size, self.size[1]
+            pos: self.pos[0], self.pos[1]
+            radius: [(self.size[1]+100)*0.1]
+
+<RoundedButton@Button>
+    background_color:1,1,1,0.1
+    background_normal: ""
+    canvas.before:
+        Color:
+            rgba: app.roundedbuttoncolor
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [(self.size[1]+100)*0.1]
+
+<TopBox@GridLayout>
+    cols:5
+    size_hint_y:None
+    height:app.menubarheight
+    Button:
+        background_normal:''
+        background_color: 1,1,1,0.5
+        size_hint_x: 56/360
+        on_release:
+            app.root.current = fun.topboxproperties(app.root.current)[1]
+        IconImage:
+            source: 'Images/arrow-left.png'
+    Label:
+        size_hint_x: 136/360
+        text: app.topboxlabelname
+        color: 0,0,0,1
+        background_normal:''
+        background_color: (1,1,1,0.5)
+        font_size: "24sp"
+        halign: 'left'
+        valign: 'center'
+        text_size: self.size
+    Button:
+        size_hint_x: 56/360
+        text: ""
+        background_normal:''
+        background_color: 1,1,1,0.5
+        on_press: app.soundmuter()
+        IconImage:
+            source: app.soundicon
+    Button:
+        size_hint_x: 56/360
+        background_normal:''
+        background_color: 1,1,1,0.5
+        on_release: app.root.current = "SaveScreen"
+        IconImage:
+            source: 'Images/content-save.png'
+    Button:
+        size_hint_x: 56/360
+        background_normal:''
+        background_color: 1,1,1,0.5
+        on_release: Factory.SearchPopup().open()
+        IconImage:
+            source: 'Images/magnify.png'
+<BotBox@BoxLayout>
+    Button:
+        text: "Home"
+        color: 0,0,0,1
+        background_normal:''
+        background_color: (1,1,1,0.5)
+        size_hint: (0.25,1.)
+        font_size: "12sp"
+        halign: 'center'
+        valign: 'bottom'
+        text_size: self.size
+        on_release:
+            app.root.current = "mainscreen"
+        IconImage:
+            source: 'Images/home.png'
+    Button:
+        text: "Lessons"
+        color: 0,0,0,1
+        background_normal:''
+        background_color: (1,1,1,0.5)
+        size_hint: (0.25,1.)
+        font_size: "12sp"
+        halign: 'center'
+        valign: 'bottom'
+        text_size: self.size
+        on_release:
+            app.root.current = "lessonscreen"
+        IconImage:
+            source: 'Images/school.png'
+    Button:
+        text: "Reviews"
+        color:0,0,0,1
+        background_normal:''
+        background_color: 1,1,1,0.5
+        size_hint: 0.25, 1.
+        font_size: "12sp"
+        halign: 'center'
+        valign: 'bottom'
+        text_size: self.size
+        on_release:
+            app.root.current = "reviewscreen"
+        IconImage:
+            source: 'Images/rotate-right.png'
+    Button:
+        text: "Quiz"
+        color:0,0,0,1
+        background_normal:''
+        background_color: 1,1,1,0.5
+        size_hint: 0.25, 1.
+        font_size: "12sp"
+        halign: 'center'
+        valign: 'bottom'
+        text_size: self.size
+        on_release:
+            app.root.current = "ExtrasScreen"
+        IconImage:
+            source: 'Images/head-question-outline.png'
+    Button:
+        text: "Stats"
+        color: 0,0,0,1
+        size_hint: (0.25,1.)
+        font_size: "12sp"
+        background_normal:''
+        background_color: 1,1,1,0.5
+        halign: 'center'
+        valign: 'bottom'
+        text_size: self.size
+        on_release:
+            app.root.current = "StatisticsScreen"
+        IconImage:
+            source: 'Images/trending-up.png'
+
+<MainScreenLabel@Label>
+    color: 0,0,0,1
+    text_size: self.size
+    font_size: "12sp"
+    halign: 'left'
+    valign: 'middle'
+    size_hint: (0.2,0.2)
+    padding_x:"4dp"
+    canvas.before:
+        Color:
+            rgba: app.roundedbuttoncolor
+        SmoothLine:
+            rounded_rectangle: self.pos[0],self.pos[1] ,self.size [0], self.size[1],(self.size[1]+100)*0.1
+            width: 1
+<MainScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "mainscreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        GridLayout:
+            cols:5
+            size_hint_y:None
+            height:app.menubarheight
+            SpinnerWidget:
+                id: levelspinner
+                values: ["Topics", "About"]
+                size_hint_x: 56/360
+                background_normal:''
+                background_color: 1,1,1,0.5
+                on_text: root.mainscreenspinner_click(self.text)
+                IconImage:
+                    source: 'Images/table-of-contents.png'
+            Label:
+                size_hint_x: 136/360
+                text: app.topboxlabelname
+                color: 0,0,0,1
+                background_normal:''
+                background_color: (1,1,1,0.5)
+                font_size: "24dp"
+                halign: 'left'
+                valign: 'center'
+                text_size: self.size
+            Button:
+                size_hint_x: 56/360
+                text: ""
+                background_normal:''
+                background_color: 1,1,1,0.5
+                on_press: app.soundmuter()
+                IconImage:
+                    source: app.soundicon
+            Button:
+                size_hint_x: 56/360
+                background_normal:''
+                background_color: 1,1,1,0.5
+                on_release: app.root.current = "SaveScreen"
+                IconImage:
+                    source: 'Images/content-save.png'
+            Button:
+                size_hint_x: 56/360
+                background_normal:''
+                background_color: 1,1,1,0.5
+                on_release: Factory.SearchPopup().open()
+                IconImage:
+                    source: 'Images/magnify.png'
+        Label:
+            text: ""
+            size_hint: (1, 0.005)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        Label:
+            text: "Welcome!"
+            size_hint: (1, 0.04)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+            font_size: "48sp"
+        Label:
+            text: "Currently in {}".format(app.mainscreen_levelname)
+            size_hint: (1, 0.02)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+            halign: 'center'
+            valign: 'top'
+            font_size: "16sp"
+        GridLayout:
+            cols:2
+            rows:1
+            padding:"12dp"
+            spacing:"8dp"
+            size_hint: (1., 0.4)
+            GridLayout:
+                cols:1
+                rows:5
+                padding:"2dp"
+                spacing:"8dp"
+                size_hint: (0.4,0.2)
+                RoundedButton_animated:
+                    on_press: root.animate_main_button(self, "lessonscreen")
+                    #on_release: app.root.current =
+                    IconImageMain:
+                        source: 'Images/school.png'
+                RoundedButton_animated:
+                    on_release: root.animate_main_button(self, "reviewscreen")
+                    IconImageMain:
+                        source: 'Images/rotate-right.png'
+                RoundedButton_animated:
+                    on_release: root.animate_main_button(self, "ExtrasScreen")
+                    IconImageMain:
+                        source: 'Images/head-question-outline.png'
+                RoundedButton_animated:
+                    on_release: root.animate_main_button(self, "StatisticsScreen")
+                    IconImageMain:
+                        source: 'Images/trending-up.png'
+                RoundedButton_animated:
+                    on_release: root.animate_main_button(self, "Tutorial")
+                    IconImageMain:
+                        source: 'Images/robot-confused-outline.png'
+            GridLayout:
+                rows:5
+                size_hint: (0.6,1.)
+                spacing:"8dp"
+                padding:"2dp"
+                MainScreenLabel:
+                    id: MainLabel
+                    text: "[b]{}[/b] Lessons left.\nLearn new words here!".format(app.lessonqueue)
+                    markup: True
+                MainScreenLabel:
+                    text: "[b]{}[/b] Reviews available.\nRepeat your vocabulary now!".format(root.reviewqueue)
+                    markup: True
+                MainScreenLabel:
+                    text: "Quiz Section.\nExtra soundquiz and memoryquiz!"
+                MainScreenLabel:
+                    text: "Statistics.\nUpcoming Reviews and current progession."
+                MainScreenLabel:
+                    text: "Tutorial.\nLean more about the app here."
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+
+<ReviewScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "reviewscreen"
+    answer: answer
+    canvas.before:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+            id:topboxid
+        GridLayout:
+            cols: 1
+            id: review_deletion_layout
+            Label:
+                text: "{} Items left".format(root.reviewqueuelabel)
+                color: 0,0,0,1
+                text_size: self.size
+                halign: 'center'
+                valign: 'middle'
+                size_hint: (1., 0.05)
+                canvas.before:
+                    Color:
+                        rgba: root.reviewcolor
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+            Label:
+                text: root.emeaning
+                color: 0,0,0,1
+                halign: 'center'
+                valign: 'top'
+                font_size: (self.height*1.5)/((20+len(self.text))*0.15)
+                size_hint: (1., 0.1)
+                text_size: self.size
+                canvas.before:
+                    Color:
+                        rgba: root.reviewcolor
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+            TextInput:
+                id: answer
+                size_hint: (1., 0.05)
+                background_color: root.reviewcolor
+                on_focus:
+                    self.text = ""
+            Label:
+                text:  root.correction
+                size_hint: (1., 0.05)
+                color:0,0,0,1
+                text_size: self.size
+                halign: 'center'
+                valign: 'top'
+                font_size: (self.height)/((10+len(self.text))*0.1)
+                canvas.before:
+                    Color:
+                        rgba: root.reviewcolor
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+            Label:
+                text: root.correctanswer + root.givenanswer
+                size_hint: (1., 0.05)
+                color: 0,0,0,1
+                canvas.before:
+                    Color:
+                        rgba: root.reviewcolor
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+            Label:
+                text: ""
+                size_hint: (1., 0.1)
+                canvas.before:
+                    Color:
+                        rgba: root.reviewcolor
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+
+
+<LessonLearnScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "lessonscreen"
+    deletion_layout: deletion_layout
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols: 1
+        TopBox:
+        GridLayout:
+            cols: 1
+            id: deletion_layout
+            ScrollView:
+                do_scroll_x: False
+                do_scroll_y: True
+                effect_cls: ScrollEffect
+                GridLayout:
+                    height: self.minimum_height
+                    cols:1
+                    size_hint_y: None
+                    canvas.before:
+                        Color:
+                            rgba: app.roundedbuttoncolor
+                        Rectangle:
+                            size:  self.size
+                            pos: self.pos
+                    GridLayout:
+                        height: self.minimum_height
+                        cols:1
+                        size_hint_y: None
+                        BlackLine:
+                        Label:
+                            text: root.emeaning
+                            color: 0,0,0,1
+                            font_size: "24dp"
+                            height: "72dp"
+                            size_hint_y:None
+                            text_size: self.size
+                            halign: 'center'
+                            valign: 'center'
+                        Label:
+                            text: "[i]"+root.esynonym+"[/i]"
+                            markup: True
+                            color: 0,0,0,1
+                            height: "24dp"
+                            size_hint_y:None
+                            text_size: self.size
+                            halign: 'center'
+                            valign: 'top'
+                        BlackLine:
+                        Label:
+                            text: root.gmeaning
+                            color: 0,0,0,1
+                            font_size: "24dp"
+                            height: "72dp"
+                            size_hint_y:None
+                            text_size: self.size
+                            halign: 'center'
+                            valign: 'center'
+                        Label:
+                            text: "[i]"+root.gsynonym+"[/i]"
+                            color: 0,0,0,1
+                            height: "24dp"
+                            size_hint_y:None
+                            text_size: self.size
+                            halign: 'center'
+                            valign: 'top'
+                            markup: True
+                        BlackLine:
+                    AnchorLayout:
+                        height: 0.6*root.windowsize[1]
+                        padding:"8dp"
+                        size_hint_y:None
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,1)
+                            Rectangle:
+                                size:  self.size
+                                pos: self.pos
+                        Label:
+                            text:"Definition \n\n"+ root.definition
+                            color: 0,0,0,1
+                            size_hint_y:1
+                            size_hint_x:1
+                            text_size: self.size
+                            halign: 'center'
+                            valign: 'top'
+                            markup: True
+            AnchorLayout:
+                size_hint: (1., 0.05)
+                ProgressBar:
+                    min:0
+                    max:root.levellength-1
+                    size_hint: (0.8, 1.)
+                    pos_hint:{"x":.1}
+                    value: root.lessonnumber
+            GridLayout:
+                cols: 2
+                size_hint: (1., 0.1)
+                Button:
+                    text: "Last Lesson"
+                    on_press: root.lastlesson()
+                    background_color:  1,1,1,0
+                    color: 0,0,0,1
+                    background_normal:''
+                    halign: 'center'
+                    valign: 'bottom'
+                    text_size: self.size
+                    Image:
+                        source: 'Images/arrow-left-thin-48.png'
+                        x: self.parent.center_x - self.size[0]*0.5
+                        y:  self.parent.center_y - self.size[1]*0.025
+                        size: app.iconsize
+                        allow_stretch: True
+                Button:
+                    text: root.nextlessontext
+                    background_color: 1,1,1,0
+                    color: 0,0,0,1
+                    background_normal:''
+                    halign: 'center'
+                    valign: 'bottom'
+                    text_size: self.size
+                    on_release:
+                        if root.lessonnumber < root.levellength-1: root.nextlesson()
+                        else:   app.root.current = "lessonquizscreen"
+                    Image:
+                        source: 'Images/arrow-right-thin-48.png'
+                        x: self.parent.center_x - self.size[0]*0.5
+                        y:  self.parent.center_y - self.size[1]*0.025
+                        size: app.iconsize
+                        allow_stretch: True
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<LessonQuizScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "lessonquizscreen"
+    lessonanswer: lessonanswer
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        Label:
+            text:  root.lessonqueuelabel + " Items left"
+            color: 0,0,0,1
+            height: "24dp"
+            size_hint_y:None
+        BlackLine:
+        Label:
+            text: root.lessonemeaning
+            color: 0,0,0,1
+            font_size: (self.height)/((10+len(self.text))*0.125)
+            height: "72dp"
+            size_hint_y:None
+            canvas.before:
+                Color:
+                    rgba: root.lessonquizcolour
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+        BlackLine:
+        Label:
+            text: root.lessongmeaning
+            color:0,0,0,1
+            height: "72dp"
+            size_hint_y:None
+            canvas.before:
+                Color:
+                    rgba: root.lessonquizcolour
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+        BlackLine:
+        TextInput:
+            id: lessonanswer
+            height: "72dp"
+            size_hint_y:None
+            on_focus:
+                self.text =""
+        Button:
+            id: submit
+            text: root.submitting
+            halign: 'center'
+            valign: 'bottom'
+            text_size: self.size
+            color: (0,0,0,1)
+            background_normal:''
+            background_color: 1,1,1,1
+            height: "72dp"
+            size_hint_y:None
+            on_press:
+                if root.submitting == "Submit Answer": root.do_one_lesson()
+                elif root.submitting == "Next": root.update_text()
+            on_release: root.lessonanswer.focus= True
+            IconImage:
+                source: 'Images/check-outline.png'
+        Label:
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<StatisticsScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "StatisticsScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            effect_cls: ScrollEffect
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+            GridLayout:
+                height: self.minimum_height
+                cols:1
+                size_hint_y: None
+                Label:
+                    text: "Progression"
+                    color: 0,0,0,1
+                    height: 0.05*root.windowsize[1]
+                    size_hint_y:None
+                BoxLayout:
+                    id: statistics1
+                    height:0.4*root.windowsize[1]
+                    size_hint_y:None
+                BlackLine:
+                Label:
+                    text: "Upcoming Reviews"
+                    color: 0,0,0,1
+                    height: 0.05*root.windowsize[1]
+                    size_hint_y:None
+                BoxLayout:
+                    id: statistics2
+                    height: root.statisticsheight
+                    size_hint_y:None
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<ExtrasScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "ExtrasScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        GridLayout:
+            cols:1
+            rows:7
+            padding:20
+            spacing:20
+            RoundedButton:
+                text: "Start"
+                color: 0,0,0,1
+                size_hint: (0.4,0.2)
+                halign: 'center'
+                valign: 'center'
+                text_size: self.size
+                font_size: (self.height)/2
+                on_release:
+                    app.root.current = root.gamemode
+            GridLayout:
+                cols:1
+                rows:2
+                size_hint: (1., 0.3)
+                Label:
+                    text: "Quizmode"
+                    size_hint: (1, 0.1)
+                    color: 0,0,0,1
+                    background_color: 1,1,1,1
+                GridLayout:
+                    cols:2
+                    rows:1
+                    size_hint: (1., 0.2)
+                    Button:
+                        text: "Memory"
+                        color: 0,0,0,1
+                        size_hint: (0.4,1.)
+                        halign: 'center'
+                        valign: 'bottom'
+                        background_normal:''
+                        background_color: 1,1,1,0
+                        text_size: self.size
+                        canvas.before:
+                            Color:
+                                rgba: app.roundedbuttoncolor if root.gamemode == "MemoryScreen" else root.useallcolor
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [(self.size[1]+100)*0.1,0,0,(self.size[1]+100)*0.1]
+                        on_release:
+                            root.gamemode = "MemoryScreen"
+                        IconImageMain:
+                            source: 'Images/compare.png'
+                            size:(self.parent.size[0]*0.3 ,self.parent.size[1]*0.3)
+                    Button:
+                        text: "Soundcheck"
+                        color:0,0,0,1
+                        size_hint: 0.4, 1.
+                        halign: 'center'
+                        valign: 'bottom'
+                        background_normal:''
+                        background_color: 1,1,1,0
+                        text_size: self.size
+                        canvas.before:
+                            Color:
+                                rgba: app.roundedbuttoncolor if root.gamemode == "SoundcheckScreen" else root.useallcolor
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [0,(self.size[1]+100)*0.1,(self.size[1]+100)*0.1,0]
+                        on_release:
+                            root.gamemode = "SoundcheckScreen"
+                        IconImageMain:
+                            source: 'Images/boombox.png'
+                            size:(self.parent.size[0]*0.3 ,self.parent.size[1]*0.3)
+            GridLayout:
+                cols:1
+                rows:2
+                size_hint: (1., 0.3)
+                Label:
+                    text: "Included Vocabulary"
+                    size_hint: (1, 0.1)
+                    color: 0,0,0,1
+                    background_color: 1,1,1,1
+                Button:
+                    background_color:1,1,1,0.1
+                    background_normal: ""
+                    color: 0,0,0,1
+                    halign: 'center'
+                    valign: 'center'
+                    text: "Use all Vocabulary"
+                    size_hint: (0.4,0.2)
+                    text_size: self.size
+                    font_size: (self.height)/4
+                    on_release:
+                        root.useallvocabulary()
+                    canvas.before:
+                        Color:
+                            rgba: app.roundedbuttoncolor if root.useallvocab == True else root.useallcolor
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [(self.size[1]+100)*0.1]
+            GridLayout:
+                cols:1
+                rows:2
+                size_hint: (1., 0.3)
+                Label:
+                    text: "Quiz Statistics"
+                    size_hint: (1, 0.1)
+                    color: 0,0,0,1
+                    background_color: 1,1,1,1
+                Button:
+                    background_color:1,1,1,0.1
+                    background_normal: ""
+                    color: 0,0,0,1
+                    halign: 'center'
+                    valign: 'center'
+                    text: "Advanced Statistics"
+                    size_hint: (0.4,0.2)
+                    text_size: self.size
+                    font_size: (self.height)/4
+                    on_release:
+                        app.root.current = "QuizStatAdvancedScreen"
+                    canvas.before:
+                        Color:
+                            rgba: app.roundedbuttoncolor if root.useallvocab == True else root.useallcolor
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [(self.size[1]+100)*0.1]
+
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<MemoryScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "MemoryScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        GridLayout
+            cols:2
+            GridLayout:
+                cols:1
+                id: memorygrid1
+                padding: "8dp"
+                spacing:"8dp"
+            GridLayout:
+                cols:1
+                id: memorygrid2
+                padding:"8dp"
+                spacing: "8dp"
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<QuizStatAdvancedScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "QuizStatAdvancedScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        GridLayout:
+            cols:1
+            rows:5
+            padding:20
+            spacing:20
+            Label:
+                text: "Section under Construction"
+                size_hint: (1, 0.1)
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                #font_size: (self.height)/((40+len(self.text))*0.05)
+            Label:
+                text: "Last Session: {0:.0f}%".format(root.percentage)
+                size_hint: (1, 0.1)
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                #font_size: (self.height)/((40+len(self.text))*0.05)
+            Label:
+                text: "Wrong answered items: {0:.0f}%".format(root.percentage)
+                size_hint: (1, 0.1)
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                #font_size: (self.height)/((40+len(self.text))*0.05)
+            Label:
+                text: "Overall Percentage: {0:.0f}%".format(root.percentage)
+                size_hint: (1, 0.1)
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                #font_size: (self.height)/((40+len(self.text))*0.05)
+            Label:
+                text: ""
+                size_hint: (0.01, 0.1)
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<SoundcheckScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "SoundcheckScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        GridLayout:
+            cols:3
+            rows:1
+            size_hint:1.,0.15
+            Label:
+                text: ""
+                size_hint: (0.01, 0.01)
+            RoundedButton:
+                text: ""
+                color: 0,0,0,1
+                size_hint: (0.4,1.)
+                halign: 'center'
+                valign: 'bottom'
+                text_size: self.size
+                on_press: root.play_sound()
+
+                IconImageMain:
+                    source: 'Images/volume-high.png'
+            Label:
+                text: ""
+                size_hint: (0.01, 0.01)
+        GridLayout:
+            cols:2
+            id: soundgrid
+            size_hint: (0.01, 0.6)
+        GridLayout:
+            cols:1
+            id: canvasgrid
+            size_hint: (0.01, 0.1)
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<SaveScreen>:
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "SaveScreen"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        BlackLine:
+        GridLayout:
+            cols:3
+            size_hint_y:None
+            height:self.parent.height/5
+            Button:
+                text:"Import"# from \n" + str(root.selection)
+                on_press:
+                    root.updateanswer = fun.updatedatabase(str(root.selection))
+                    root.updatequeues()
+                size_hint: (1, 0.15)
+                background_normal:''
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                halign: 'center'
+                valign: 'top'
+                text_size: self.size
+                IconImageMain:
+                    source: 'Images/download.png'
+            Label:
+                text:""
+                size_hint_y:0.01
+                size_hint_x:0.01
+                canvas.before:
+                    Color:
+                        rgba: (0,0,0,1)
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+            Button:
+                text:"Export"# to \n" + str(root.path)
+                on_press: root.updateanswer = fun.createjson(str(root.path))
+                size_hint: (1., 0.15)
+                background_normal:''
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+                halign: 'center'
+                valign: 'top'
+                text_size: self.size
+                IconImageMain:
+                    source: 'Images/upload.png'
+        BlackLine:
+        Label:
+            text: root.updateanswer
+            size_hint: (1, 0.15)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+            font_size: (self.height)/((40+len(self.text))*0.05)
+        Label:
+            text: "Search here: "
+            size_hint: (1, 0.05)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+            halign: 'center'
+            valign: 'bottom'
+            text_size: self.size
+        FileChooser:
+            # change colors in <FilechooserListView> on top of this doc
+            id: fc
+            rootpath: root.androidpath if platform == 'android' else '/'
+            background_normal:''
+            on_submit: root.selection = fc.selection[0]
+            on_entry_added: root.path = fc.path
+            FileChooserListLayout
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<TopicChoice>
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "TopicChoice"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            effect_cls: ScrollEffect
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+            GridLayout:
+                height: self.minimum_height
+                size_hint_y: None
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,1)
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+                cols:2
+                rows:1
+                padding:"12dp"
+                spacing:"8dp"
+                GridLayout:
+                    cols:1
+                    rows:5
+                    padding:"2dp"
+                    spacing:"8dp"
+                    height: self.minimum_height*1.1 if platform == 'android' else self.minimum_height*1
+                    size_hint_y: None
+                    RoundedButton_animated:
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        on_press: app.levelclicked("General Science"),root.animate_level_button(self, "General Science")
+                        #on_release: app.root.current =
+                        IconImageMain:
+                            source: 'Images/microscope.png'
+                    RoundedButton_animated:
+                        on_release: app.levelclicked("Job Interview"),root.animate_level_button(self, "Job Interview")
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        IconImageMain:
+                            source: 'Images/handshake-outline.png'
+                    RoundedButton_animated:
+                        on_release:app.levelclicked("Medicine"), root.animate_level_button(self, "Medicine")
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        IconImageMain:
+                            source: 'Images/medication-outline.png'
+                    RoundedButton_animated:
+                        on_release: app.levelclicked("Electronics"),root.animate_level_button(self, "Electronics")
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        IconImageMain:
+                            source: 'Images/flash-outline.png'
+                    RoundedButton_animated:
+                        on_release: app.levelclicked("Chemistry"), root.animate_level_button(self, "Chemistry")
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        IconImageMain:
+                            source: 'Images/flask.png'
+                GridLayout:
+                    rows:5
+                    height: self.minimum_height*1.1 if platform == 'android' else self.minimum_height*1
+                    size_hint_y: None
+                    spacing:"8dp"
+                    padding:"2dp"
+                    MainScreenLabel:
+                        id: MainLabel
+                        text: "General Science"
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        markup: True
+                    MainScreenLabel:
+                        text: "Job Interview"
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        markup: True
+                    MainScreenLabel:
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text: "Medicine"
+                    MainScreenLabel:
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text: "Electronics"
+                    MainScreenLabel:
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text: "Chemistry"
+<Tutorial>
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "Tutorial"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            effect_cls: ScrollEffect
+            canvas.before:
+                Color:
+                    rgba: (1,1,1,1)
+                Rectangle:
+                    size:  self.size
+                    pos: self.pos
+            GridLayout:
+                height: self.minimum_height
+                cols:1
+                size_hint_y: None
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,1)
+                    Rectangle:
+                        size:  self.size
+                        pos: self.pos
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height*1.1 if platform == 'android' else self.minimum_height*1
+                    rows:2
+                    size_hint_y: None
+                    padding: 20
+                    spacing:10
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/icon0406nummer2.png'
+                    Label:
+                        text: fun.tutorialintroduction()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.7 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:2
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/school.png'
+                    Label:
+                        text: fun.tutoriallesson()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:2
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/refresh.png'
+                    Label:
+                        text: fun.tutorialreview()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:3
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/trending-up.png'
+                    Label:
+                        text: fun.tutorialstatistics()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:3
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/play-box-multiple-outline.png'
+                    Label:
+                        text: fun.tutorialextra()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:3
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/table-of-contents.png'
+                    Label:
+                        text: fun.tutoriallevel()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:3
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/magnify.png'
+                    Label:
+                        text: fun.tutorialsearch()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+                GridLayout:
+                    height: self.minimum_height
+                    rows:3
+                    size_hint_y: None
+                    padding: 20
+                    Label:
+                        color: 0,0,0,1
+                        height: 0.1*app.windowsize[1]
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'center'
+                        valign: 'top'
+                        markup: True
+                        IconImageMain:
+                            source: 'Images/content-save.png'
+                    Label:
+                        text: fun.tutorialsave()
+                        color: 0,0,0,1
+                        height: len(self.text)*1.5 if platform == 'android' else len(self.text)*0.75
+                        size_hint_y:None
+                        text_size: self.size
+                        halign: 'left'
+                        valign: 'top'
+                        markup: True
+                BlackLine:
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
+<About>
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "About"
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+        GridLayout:
+            size_hint:(0.25,0.25)
+            cols:2
+            rows:1
+            padding:20
+            spacing:20
+            RoundedButton:
+                text: "Imprint"
+                color: 0,0,0,1
+                halign: 'center'
+                valign: 'center'
+                text_size: self.size
+                font_size: "16dp"
+                on_release:
+                    root.abouttext = fun.imprint()
+            RoundedButton:
+                text: "Acknowledgements"
+                color: 0,0,0,1
+                halign: 'center'
+                valign: 'center'
+                text_size: self.size
+                font_size: "16dp"
+                on_release:
+                    root.abouttext = fun.acknowledgements()
+        GridLayout:
+            cols:1
+            rows:1
+            padding: 20
+            spacing: 20
+            Label:
+                text: root.abouttext
+                halign: 'left'
+                valign: 'top'
+                text_size: self.size
+                background_normal:''
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+
+
+<DevMode>
+    on_pre_leave: app.topboxer(app.root.current)
+    name: "DevMode"
+    updating: updating
+    canvas.before:
+        Color:
+            rgba: (1,1,1,1)
+        Rectangle:
+            size:  self.size
+            pos: self.pos
+    GridLayout:
+        cols:1
+        TopBox:
+#        Button:
+#            text:"Reset all to Lessons"
+#            on_press: fun.reset_all_to_lessons()
+#            on_release: root.updatequeue()
+#            size_hint: (1., 0.1)
+#            background_normal:''
+#            color: 0,0,0,1
+#            background_color: 1,1,1,1
+        # reset reviews
+#        Button:
+#            text:"Reset Reviews to now"
+#            on_press: fun.reset_all_reviews()
+#            on_release: root.updatequeue()
+#            size_hint: (1., 0.1)
+#            background_normal:''
+#            color: 0,0,0,1
+#            background_color: 1,1,1,1
+#        Button:
+#            text:"Set 10 Items to Reviews"
+#            on_press: fun.set_items_to_reviews()
+#            on_release: root.updatequeue
+#            size_hint: (1., 0.1)
+#            background_normal:''
+#            color: 0,0,0,1
+#            background_color: 1,1,1,1
+        Label:
+            text: root.buttonpressed + " Button"
+            size_hint: (1., 0.1)
+            background_normal:''
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        GridLayout:
+            cols:2
+            size_hint_y:None
+            height:self.parent.height/10
+            TextInput:
+                id: updating
+                multiline: False
+                size_hint: (0.5, 1)
+            Button:
+                text:"Save Progress"
+                on_press: root.updateanswer = fun.updatedatabase(root.updating.text)
+                size_hint: (0.5, 1)
+                background_normal:''
+                color: 0,0,0,1
+                background_color: 1,1,1,1
+        Label:
+            text: "Done?" + root.updateanswer
+            size_hint: (1, 0.1)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        Button:
+            text:"Save Progress"
+            on_press: fun.createjson()
+            size_hint: (1., 0.1)
+            background_normal:''
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        Label:
+            text: "Windowsize: " + str(app.windowsize)
+            size_hint: (1., 0.1)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        Label:
+            text: "Os: " + str(app.opsystemname)
+            size_hint: (1., 0.05)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        Label:
+            text: "Platform: " + str(app.platformname)
+            size_hint: (1., 0.05)
+            color: 0,0,0,1
+            background_color: 1,1,1,1
+        GridLayout:
+            size_hint_y:None
+            height: app.menubarheight
+            cols:1
+            BotBox:
+                size_hint:(1.,1.)
