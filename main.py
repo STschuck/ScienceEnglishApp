@@ -26,6 +26,7 @@ from kivy.utils import platform as pltfrm
 from kivy.resources import resource_add_path, resource_find
 
 
+
 if pltfrm == 'android':
     from android.permissions import request_permissions, Permission
     request_permissions([Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE] )
