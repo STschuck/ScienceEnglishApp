@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jan 30 16:39:01 2022
-
-@author: Simon
-"""
-
 import datetime as d
 import numpy as np
 import sqlite3
@@ -136,6 +129,7 @@ third party components and sources:
 - wikipedia
 """
 
+
 def get_time():
     print("Time right now: " + str(d.datetime.now()))
     print("Used Time: " + str(time))
@@ -150,7 +144,9 @@ def getreviewqueue():
 
 
 def get_all_reviews():
-    c = """SELECT Subject.SID, Subject.EMeaning, Subject.GMEaning, Subject.srsstage, Subject.GSynonym, Review.Timeswrong, Review.Timeswronginsession FROM Subject, Review  WHERE Review.SID=Subject.SID and Review.Date<?"""
+    c = """SELECT Subject.SID, Subject.EMeaning, Subject.GMEaning, Subject.srsstage, Subject.GSynonym, Review.Timeswrong, Review.Timeswronginsession   
+    FROM Subject, Review  
+    WHERE Review.SID=Subject.SID and Review.Date<?"""
     cursor.execute(c, (d.datetime.now(),))
     allcontents = cursor.fetchall()
     shuffle(allcontents)
@@ -508,14 +504,10 @@ def createjson(path):
             dictionary["date"].append(i[2])
             dictionary["Timeswrong"].append(i[3])
             dictionary["Timeswronginsession"].append(i[4])
-
         filename = "/savefile" + time[0:10] +".json"
         # we neeeeed / not \ for it to work  ... rip
-
         with open(path + filename, "w") as outfile:
-
             json.dump(dictionary, outfile)
-
         return "Export Done!"
 
     except Exception as ex:
@@ -539,7 +531,6 @@ def updatedatabase(filename):
             cursor.execute(e, (data["date"][v], data["Timeswrong"][v], data["Timeswronginsession"][v], data["SID"][v]))
         connection.commit()
         return "Import Done!"
-
     except:
         return "Sorry, not possible to update!\nPlease choose another file."
     # except Exception as ex:

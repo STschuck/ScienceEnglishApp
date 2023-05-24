@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 10 16:56:10 2022
-
-@author: Simon
-
-eah color: 0, 170,160
-source right wrong sound: https://mixkit.co/free-sound-effects/
-(13, 'enter')
-"""
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -382,6 +372,7 @@ class MainScreen(Screen):
         self.ids.levelspinner.text = ""
         # fixed bug: does not click if the same option was clicked right before
         # solution: reset levelspinner text to ""
+
 
 class LessonQuizScreen(Screen):
     lessonanswer = ObjectProperty(None)
